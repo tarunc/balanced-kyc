@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+npm install
+grunt test
