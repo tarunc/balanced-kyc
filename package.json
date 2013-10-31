@@ -1,9 +1,18 @@
 {
-  "dependencies": {
+  "name": "balanced-kyc",
+  "version": "0.0.1",
+  "description": "Balanced KYC",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "grunt test --verbose"
   },
+  "repository": "git@github.com:tarunc/balanced-kyc.git",
+  "author": "Tarun Chaudhry <tarunc92@gmail.com>",
+  "private": true,
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-open": "~0.2.2",
+    "grunt-neuter": "0.5.0",
     "grunt-cli": "~0.1.9",
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-less": "~0.7.0",
@@ -18,7 +27,14 @@
     "matchdep": "~0.3.0",
     "grunt-contrib-connect": "~0.5.0",
     "grunt-tasty-swig": "~0.1.0",
-    "swig": "~1.1.0"
-  },
-  "repository": "none"
+    "swig": "~1.1.0",
+    "karma-script-launcher": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.0",
+    "karma-phantomjs-launcher": "~0.1.0",
+    "karma": "~0.10.2",
+    "grunt-karma": "~0.6.2",
+    "karma-coverage": "~0.1",
+    "karma-qunit": "~0.1"
+  }
 }

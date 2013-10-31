@@ -11,11 +11,19 @@
 	}
 
 	var utils = {
+		// Quick function to add params to a url.
+		// Supports urls with params already (with ?foo=bar) and hashes (#html5App)
 		addQueryParamsToUrl: function(url, params) {
 			var paramStr = $.param(params);
-			return (url.indexOf('?') !== -1 ? url.split('?')[0] + '?' + paramStr + '&' + url.split('?')[1] : (url.indexOf('#') !== -1 ? url.split('#')[0] + '?' + paramStr + '#' + url.split('#')[1] : url + '?' + paramStr));
+
+			return (url.indexOf('?') !== -1 ?
+						url.split('?')[0] + '?' + paramStr + '&' + url.split('?')[1] :
+						(url.indexOf('#') !== -1 ?
+							url.split('#')[0] + '?' + paramStr + '#' + url.split('#')[1] :
+							url + '?' + paramStr));
 		},
 
+		//  Return a copy of the object only containing the whitelisted properties.
 		pick: function(obj) {
 			var copy = {};
 			var keys = Array.prototype.slice.call(arguments, 1);
@@ -29,6 +37,7 @@
 			return copy;
 		},
 
+		// Left pads a number by target amount.
 		leftPad: function(number, targetLength) {
 			var output = Math.floor(number) + '';
 
@@ -39,6 +48,7 @@
 			return output;
 		},
 
+		// Sets a param ipInfo in utils
 		getIp: function() {
 			if (utils.ipInfo) {
 				return;
@@ -49,6 +59,7 @@
 			});
 		},
 
+		// Gets system capabilities
 		getCapabilities: function() {
 			var capabilities = {
 				'screen_width': $(window).width(),

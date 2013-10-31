@@ -7,6 +7,6 @@ QUnit.testStart(function(test) {
 
 QUnit.testDone(function(test) {
 	var module = test.module ? test.module : '';
-	console.log('#%@ %@: tearing down.'.fmt(module, test.name));
-	console.log('#%@ %@: done.'.fmt(module, test.name));
+	console.log('#' + module + ' ' + test.name + ': tearing down.');
+	console.log('#' + module + ' ' + test.name + ': done.');
 });

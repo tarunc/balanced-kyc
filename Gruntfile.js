@@ -9,6 +9,27 @@ module.exports = function(grunt) {
 			}
 		},
 
+		// We're using the template here to construct an array of functions
+		// that sets up Balanced so we can destroy and reconstruct the
+		// entire app while running tests.
+		neuter: {
+			testfixtures: {
+				options: {
+					template: "{%= src %} ;"
+				},
+				src: ['test/support/fixtures/fixtures.js'],
+				dest: 'build/test/js/test-fixtures.js'
+			}
+		},
+
+		bower: {
+			install: {
+				options: {
+					copy: false
+				}
+			}
+		},
+
 		concat: {
 			options: {
 				separator: ';\n'
@@ -290,16 +311,16 @@ module.exports = function(grunt) {
 	});
 
 	// Subtasks
-	grunt.registerTask('_builddev', ['clean', 'concat', 'less:development', 'copy']);
-	grunt.registerTask('_buildprod', ['clean', 'verify', 'concat', 'uglify', 'less:production', 'copy']);
+	grunt.registerTask('_devBuild', ['clean', 'concat', 'less:development', 'copy', 'tasty_swig:production']);
+	grunt.registerTask('_prodBuild', ['clean', 'concat', 'uglify', 'less:production', 'copy', 'tasty_swig:development']);
 
 	grunt.registerTask('format', ['jsbeautifier:update']);
 	grunt.registerTask('verify', ['jshint', 'jsbeautifier:verify']);
 
-	grunt.registerTask('build', ['_buildprod', 'tasty_swig:production', 'hashres']);
-	grunt.registerTask('dev', ['_builddev', 'tasty_swig:development', 'connect', 'open', 'watch']);
+	grunt.registerTask('build', ['_prodBuild', 'hashres']);
+	grunt.registerTask('dev', ['_devBuild', 'connect', 'open', 'watch']);
 
-	grunt.registerTask('test', ['build', 'karma']);
+	grunt.registerTask('test', ['_devBuild', 'neuter:testfixtures', 'karma']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);

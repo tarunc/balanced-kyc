@@ -1,3 +1,1 @@
-window.setupTestFixtures = function() {
-	require('test/support/fixtures/**');
-};
+require('test/support/fixtures/**');
