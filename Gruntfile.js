@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		clean: {
 			files: {
-				src: ['build/', 'dist/', 'report/', 'contants/']
+				src: ['build/', 'dist/', 'report/', 'contants/', 'static/js/kyc.build.js']
 			}
 		},
 
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
 		neuter: {
 			testfixtures: {
 				options: {
-					template: "{%= src %} ;"
+					template: '{%= src %};'
 				},
 				src: ['test/support/fixtures/fixtures.js'],
 				dest: 'build/test/js/test-fixtures.js'
@@ -190,7 +190,7 @@ module.exports = function(grunt) {
 				files: [
 					'static/js/*'
 				],
-				tasks: ['concat'],
+				tasks: ['concat', 'uglify'],
 				options: {
 					livereload: true
 				}
@@ -311,7 +311,7 @@ module.exports = function(grunt) {
 	});
 
 	// Subtasks
-	grunt.registerTask('_devBuild', ['clean', 'concat', 'less:development', 'copy', 'tasty_swig:production']);
+	grunt.registerTask('_devBuild', ['clean', 'concat', 'uglify', 'less:development', 'copy', 'tasty_swig:production']);
 	grunt.registerTask('_prodBuild', ['clean', 'concat', 'uglify', 'less:production', 'copy', 'tasty_swig:development']);
 
 	grunt.registerTask('format', ['jsbeautifier:update']);

@@ -7,6 +7,7 @@
 
 	if (!redirectUri) {
 		// TODO: if no redirect url, what do we show?
+		console.log('No Redirect URI provided!');
 		return;
 	}
 
@@ -76,7 +77,8 @@
 		}
 	};
 
-	$(document).ready(function() {
+	$(function() {
+		console.log('sdafasdf');
 		var $form = $('form.full-page-form');
 
 		var KYCLib = {
@@ -290,7 +292,7 @@
 			}
 		};
 
-		$('.application-type a').off('.balanced-kyc').on('click.balanced-kyc', function(evt) {
+		$('.application-type a').on('click.balanced', function(evt) {
 			evt.preventDefault();
 
 			var $self = $(this);
@@ -303,7 +305,7 @@
 
 		KYCLib.fillInFormWithQueryParams();
 
-		$form.off('.balanced-kyc').on('submit.balanced-kyc', function(evt) {
+		$form.on('submit.balanced', function(evt) {
 			evt.preventDefault();
 
 			var form = $form.serializeObject();
@@ -328,7 +330,7 @@
 			content: '<img class="check_image_tool_tip" src="/images/check_image_tool_tip.png"/>'
 		});
 
-		$(document.body).off('.balanced-kyc').on('click.balanced-kyc', function(evt) {
+		$(document.body).on('click.balanced', function(evt) {
 			var $target = $(evt.target);
 
 			if (!$target.is('.popover') && !$target.parents('.popover').length && !$target.is('[data-toggle="popover"]')) {
@@ -340,4 +342,4 @@
 			utils.getIp();
 		}, 100);
 	});
-}());
+})();
