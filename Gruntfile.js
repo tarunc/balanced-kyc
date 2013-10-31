@@ -120,30 +120,25 @@ module.exports = function(grunt) {
 
 		copy: {
 			fonts: {
-				files: [
-					{
-						cwd: 'static/fonts/',
-						expand: true,
-						src: ['**'],
-						dest: 'build/static/css/fonts'
-					}
-				]
+				files: [{
+					cwd: 'static/fonts/',
+					expand: true,
+					src: ['**'],
+					dest: 'build/static/css/fonts'
+				}]
 			},
 			images: {
-				files: [
-					{
-						cwd: 'static/images/',
-						expand: true,
-						src: ['**'],
-						dest: 'build/images'
-					},
-					{
-						cwd: 'static/images/',
-						expand: true,
-						src: ['favicon.ico'],
-						dest: 'build/'
-					}
-				]
+				files: [{
+					cwd: 'static/images/',
+					expand: true,
+					src: ['**'],
+					dest: 'build/images'
+				}, {
+					cwd: 'static/images/',
+					expand: true,
+					src: ['favicon.ico'],
+					dest: 'build/'
+				}]
 			},
 			test: {
 				files: [{
@@ -298,13 +293,13 @@ module.exports = function(grunt) {
 	grunt.registerTask('_builddev', ['clean', 'concat', 'less:development', 'copy']);
 	grunt.registerTask('_buildprod', ['clean', 'verify', 'concat', 'uglify', 'less:production', 'copy']);
 
-    grunt.registerTask('format', ['jsbeautifier:update']);
-    grunt.registerTask('verify', ['jshint', 'jsbeautifier:verify']);
+	grunt.registerTask('format', ['jsbeautifier:update']);
+	grunt.registerTask('verify', ['jshint', 'jsbeautifier:verify']);
 
 	grunt.registerTask('build', ['_buildprod', 'tasty_swig:production', 'hashres']);
 	grunt.registerTask('dev', ['_builddev', 'tasty_swig:development', 'connect', 'open', 'watch']);
 
-	grunt.registerTask('test', ['build', '']);
+	grunt.registerTask('test', ['build', 'karma']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);

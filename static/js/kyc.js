@@ -11,12 +11,12 @@
 	}
 
 	var utils = {
-		addQueryParamsToUrl: function (url, params){
+		addQueryParamsToUrl: function(url, params) {
 			var paramStr = $.param(params);
 			return (url.indexOf('?') !== -1 ? url.split('?')[0] + '?' + paramStr + '&' + url.split('?')[1] : (url.indexOf('#') !== -1 ? url.split('#')[0] + '?' + paramStr + '#' + url.split('#')[1] : url + '?' + paramStr));
 		},
 
-		pick: function (obj) {
+		pick: function(obj) {
 			var copy = {};
 			var keys = Array.prototype.slice.call(arguments, 1);
 
@@ -29,7 +29,7 @@
 			return copy;
 		},
 
-		leftPad: function (number, targetLength) {
+		leftPad: function(number, targetLength) {
 			var output = Math.floor(number) + '';
 
 			while (output.length < targetLength) {
@@ -39,7 +39,7 @@
 			return output;
 		},
 
-		getIp: function () {
+		getIp: function() {
 			if (utils.ipInfo) {
 				return;
 			}
@@ -49,7 +49,7 @@
 			});
 		},
 
-		getCapabilities: function () {
+		getCapabilities: function() {
 			var capabilities = {
 				'screen_width': $(window).width(),
 				'screen_length': $(window).height(),
@@ -65,17 +65,17 @@
 		}
 	};
 
-	$(document).ready(function () {
+	$(document).ready(function() {
 		var $form = $('form.full-page-form');
 
 		var KYCLib = {
 			DEFAULT_ERROR_MESSAGE: 'This is a required field.',
 
-			getType: function () {
+			getType: function() {
 				return $form.find('.person').hasClass('selected') ? 'person' : $form.find('.business').hasClass('selected') ? 'business' : false;
 			},
 
-			setType: function (type) {
+			setType: function(type) {
 				var $toUnHide = $form.find('fieldset.hide');
 
 				if (type !== 'business') {
@@ -86,14 +86,14 @@
 				$toUnHide.removeClass('hide');
 			},
 
-			fillInFormWithQueryParams: function () {
+			fillInFormWithQueryParams: function() {
 				var applicationType = queryParams['merchant[type]'];
 				if (applicationType) {
 					$('.application-type a.' + applicationType).trigger('click');
 				}
 
 				function fillInWithQueryParam(selector, keys) {
-					$.each(keys, function (i, key) {
+					$.each(keys, function(i, key) {
 						if (queryParams[key]) {
 							$form.find(selector).val(queryParams[key]);
 							return false;
@@ -129,7 +129,7 @@
 				}
 			},
 
-			getBankAccount: function (form) {
+			getBankAccount: function(form) {
 				var bankAccount = utils.pick(form, 'routing_number', 'account_number');
 				bankAccount.name = form.account_name;
 				bankAccount.type = form.account_type;
@@ -141,7 +141,7 @@
 				return bankAccount;
 			},
 
-			getMerchant: function (form) {
+			getMerchant: function(form) {
 				var applicationType = form.type;
 
 				var base = {
@@ -179,7 +179,7 @@
 				return base;
 			},
 
-			createPayload: function (form) {
+			createPayload: function(form) {
 				var bankAccount = KYCLib.getBankAccount(form);
 				var base = KYCLib.getMerchant(form);
 
@@ -194,7 +194,7 @@
 				return jsonPayload;
 			},
 
-			sendPayload: function (payload, success, failure) {
+			sendPayload: function(payload, success, failure) {
 				return $.ajax({
 					url: URL,
 					type: 'POST',
@@ -205,20 +205,24 @@
 				});
 			},
 
-			redirectMerchant: function (resp) {
+			redirectMerchant: function(resp) {
 				var merchant = resp.merchant;
 				if (merchant) {
-					window.location = utils.addQueryParamsToUrl(redirectUri, [{ email_address: merchant.email_address }, { merchant_uri: merchant.uri }]);
+					window.location = utils.addQueryParamsToUrl(redirectUri, [{
+						email_address: merchant.email_address
+					}, {
+						merchant_uri: merchant.uri
+					}]);
 				} else {
 					// There are errors validating the document
 				}
 			},
 
-			parseErrorFromAjax: function () {
+			parseErrorFromAjax: function() {
 				console.log('error', arguments);
 			},
 
-			addError: function (selector, errorMessage) {
+			addError: function(selector, errorMessage) {
 				var $group = $form.find(selector).addClass('error');
 
 				if (errorMessage) {
@@ -228,7 +232,7 @@
 				}
 			},
 
-			clearError: function (selector) {
+			clearError: function(selector) {
 				var $group = $form.find(selector).removeClass('error');
 				var $label = $group.find('label');
 				var originalHtml = $label.data('originalHtml');
@@ -238,7 +242,7 @@
 				}
 			},
 
-			validateField: function (isValid, selector, message) {
+			validateField: function(isValid, selector, message) {
 				if (isValid) {
 					KYCLib.clearError(selector);
 				} else {
@@ -248,7 +252,7 @@
 				return isValid;
 			},
 
-			validateForm: function (form) {
+			validateForm: function(form) {
 				if (!form.type) {
 					return false;
 				}
@@ -260,7 +264,11 @@
 					var day = parseInt(form['dob_day'], 10);
 					var year = parseInt(form['dob_year'], 10);
 
-					if (KYCLib.validateField((month >= 1 && month <= 12) && (day >= 1 && day <= 31) && (form['dob_year'].length === 4 && year >= 1900 && year <= (new Date().getFullYear())), '.personal-info .dob', 'Oops, your date of birth appears malformed.')) {
+					if (KYCLib.validateField((month >= 1 && month <= 12) &&
+						(day >= 1 && day <= 31) &&
+						(form['dob_year'].length === 4 && year >= 1900 &&
+							year <= (new Date().getFullYear())),
+						'.personal-info .dob', 'Oops, your date of birth appears malformed.')) {
 						form['dob'] = form['dob_year'] + '-' + utils.leftPad(month, 2) + '-' + utils.leftPad(day, 2);
 					}
 				}
@@ -271,7 +279,7 @@
 			}
 		};
 
-		$('.application-type a').off('.balanced-kyc').on('click.balanced-kyc', function (evt) {
+		$('.application-type a').off('.balanced-kyc').on('click.balanced-kyc', function(evt) {
 			evt.preventDefault();
 
 			var $self = $(this);
@@ -284,7 +292,7 @@
 
 		KYCLib.fillInFormWithQueryParams();
 
-		$form.off('.balanced-kyc').on('submit.balanced-kyc', function (evt) {
+		$form.off('.balanced-kyc').on('submit.balanced-kyc', function(evt) {
 			evt.preventDefault();
 
 			var form = $form.serializeObject();
@@ -309,7 +317,7 @@
 			content: '<img class="check_image_tool_tip" src="/images/check_image_tool_tip.png"/>'
 		});
 
-		$(document.body).off('.balanced-kyc').on('click.balanced-kyc', function (evt) {
+		$(document.body).off('.balanced-kyc').on('click.balanced-kyc', function(evt) {
 			var $target = $(evt.target);
 
 			if (!$target.is('.popover') && !$target.parents('.popover').length && !$target.is('[data-toggle="popover"]')) {
