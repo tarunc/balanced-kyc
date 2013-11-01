@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		clean: {
 			files: {
-				src: ['build/', 'dist/', 'report/', 'contants/', 'static/js/kyc.build.js']
+				src: ['build/', 'dist/', 'report/', 'contants/']
 			}
 		},
 
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 					template: '{%= src %};'
 				},
 				src: ['test/support/fixtures/fixtures.js'],
-				dest: 'build/test/js/test-fixtures.js'
+				dest: 'build/test/static/js/test-fixtures.js'
 			}
 		},
 
@@ -44,11 +44,13 @@ module.exports = function(grunt) {
 			},
 			tests: {
 				src: [
-					'test/lib/*.js',
+					'build/static/js/kyc.min.js',
+					'build/test/static/js/test-fixtures.js',
+					'test/support/lib/**/*.js',
 					'test/unit/**/*.js',
 					'test/integration/**/*.js'
 				],
-				dest: 'build/test/js/tests.js'
+				dest: 'build/test/static/js/kyc.min.js'
 			}
 		},
 
@@ -84,11 +86,12 @@ module.exports = function(grunt) {
 			}
 		},
 
-		karma: {
-			unit: {
-				configFile: 'karma.conf.js'
-			}
-		},
+		// rename: {
+		// 	test: {
+		// 		src: 'build/static/css/',
+		// 		dest: 'build/test/index.html'
+		// 	}
+		// },
 
 		jsbeautifier: {
 			options: {
@@ -171,16 +174,17 @@ module.exports = function(grunt) {
 					cwd: 'test/support/lib/',
 					expand: true,
 					src: ['**'],
-					dest: 'build/test/js'
+					dest: 'build/test/static/js'
 				}, {
-					src: 'test/support/testconfig.js',
-					dest: 'build/test/js/testconfig.js'
+					cwd: 'build/static/',
+					expand: true,
+					src: ['**'],
+					dest: 'build/test/static/'
 				}, {
-					src: 'test/support/testenv.js',
-					dest: 'build/test/js/testenv.js'
-				}, {
-					src: 'test/support/fixturebrowserconfig.js',
-					dest: 'build/test/js/fixturebrowserconfig.js'
+					cwd: 'build/images/',
+					expand: true,
+					src: ['**'],
+					dest: 'build/test/images/'
 				}]
 			}
 		},
@@ -245,6 +249,22 @@ module.exports = function(grunt) {
 					port: 8080,
 					base: './build/'
 				}
+			},
+			test: {
+				options: {
+					port: 8080,
+					base: './build/test'
+				}
+			}
+		},
+
+		qunit: {
+			all: {
+				options: {
+					urls: [
+						'http://localhost:8080/kyc.html?redirect_uri=foo'
+					]
+				}
 			}
 		},
 
@@ -292,6 +312,14 @@ module.exports = function(grunt) {
 				production: true,
 				dest: 'build/',
 				src: ['templates/**/*.html', 'templates/**.html', '!templates/partials/**/*.html'],
+			},
+			test: {
+				context: {
+					TEST: true
+				},
+				production: true,
+				dest: 'build/test/',
+				src: ['templates/**/*.html', 'templates/**.html', '!templates/partials/**/*.html'],
 			}
 		}
 	});
@@ -320,7 +348,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('build', ['_prodBuild', 'hashres']);
 	grunt.registerTask('dev', ['_devBuild', 'connect', 'open', 'watch']);
 
-	grunt.registerTask('test', ['_devBuild', 'neuter:testfixtures', 'karma']);
+	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'connect:test', 'qunit']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);

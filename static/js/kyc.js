@@ -1,4 +1,4 @@
-(function() {
+(function(ctx) {
 	var MARKETPLACE_URI = '/v1/marketplaces/TEST-MP5JtbXVDZkSGruOJyNasPqy',
 		URL = 'https://api.balancedpayments.com/v1/api_keys';
 
@@ -8,6 +8,7 @@
 	if (!redirectUri) {
 		// TODO: if no redirect url, what do we show?
 		console.log('No Redirect URI provided!');
+		throw new Error('No Redirect URI provided!');
 		return;
 	}
 
@@ -78,7 +79,6 @@
 	};
 
 	$(function() {
-		console.log('sdafasdf');
 		var $form = $('form.full-page-form');
 
 		var KYCLib = {
@@ -99,7 +99,7 @@
 				$toUnHide.removeClass('hide');
 			},
 
-			fillInFormWithQueryParams: function() {
+			fillInFormWithQueryParams: function($form, queryParams) {
 				var applicationType = queryParams['merchant[type]'];
 				if (applicationType) {
 					$('.application-type a.' + applicationType).trigger('click');
@@ -119,16 +119,17 @@
 				fillInWithQueryParam('#phone_number', ['name', 'merchant[name]', 'merchant[person[name]]']);
 				fillInWithQueryParam('#street_address', ['name', 'merchant[name]', 'merchant[person[name]]']);
 				fillInWithQueryParam('#postal_code', ['name', 'merchant[name]', 'merchant[person[name]]']);
+				fillInWithQueryParam('#region', ['name', 'merchant[region]', 'merchant[person[region]]']);
 
 				// Bank Account
 				fillInWithQueryParam('#account_name', ['account_name', 'bank_account[name]', 'merchant[account_name]']);
 				fillInWithQueryParam('#account_number', ['account_number', 'bank_account[account_number]', 'merchant[account_number]']);
 				fillInWithQueryParam('#routing_number', ['routing_number', 'bank_account[routing_number]', 'merchant[routing_number]']);
 				fillInWithQueryParam('#account_type', ['account_type', 'bank_account[account_type]', 'merchant[account_type]']);
-				fillInWithQueryParam('#ssn_last4', ['tax_id', 'merchant[person[tax_id]]', 'person[tax_id]', 'merchant[tax_id]']);
+				// fillInWithQueryParam('#ssn_last4', ['tax_id', 'merchant[person[tax_id]]', 'person[tax_id]', 'merchant[tax_id]']);
 
 				if (applicationType === 'business') {
-					fillInWithQueryParam('#ein', ['tax_id', 'merchant[tax_id]']);
+					// fillInWithQueryParam('#ein', ['tax_id', 'merchant[tax_id]']);
 					fillInWithQueryParam('#business_name', ['name', 'merchant[name]']);
 				}
 
@@ -303,7 +304,7 @@
 			return false;
 		});
 
-		KYCLib.fillInFormWithQueryParams();
+		KYCLib.fillInFormWithQueryParams($form, queryParams);
 
 		$form.on('submit.balanced', function(evt) {
 			evt.preventDefault();
@@ -341,5 +342,19 @@
 		setTimeout(function() {
 			utils.getIp();
 		}, 100);
+
+		ctx.balanced = ctx.balanced || {};
+		ctx.balanced.kyc = {
+			setQueryString: function (queryString) {
+				queryParams = $.parseParams(queryString);
+				redirectUri = queryParams.redirect_uri;
+
+				KYCLib.fillInFormWithQueryParams($form, queryParams);
+			},
+
+			reset: function () {
+				$form[0].reset();
+			}
+		};
 	});
-})();
+})(this);
