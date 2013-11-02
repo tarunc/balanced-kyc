@@ -14,7 +14,7 @@ JSON_BUSINESS_PAYLOAD = {
 			"tax_id": "3992",
 			"street_address": "167 West 74th Street",
 			"postal_code": "10023",
-			"dob": "1842-01-01",
+			"dob": "1942-02-01",
 			"phone_number": "+16505551234",
 			"country_code": "USA",
 		}
@@ -35,7 +35,7 @@ JSON_PERSONAL_PAYLOAD = {
 		"tax_id": "3992",
 		"street_address": "167 West 74th Street",
 		"postal_code": "10023",
-		"dob": "1842-01-01",
+		"dob": "1842-01-02",
 		"phone_number": "+16505551234",
 		"country_code": "USA",
 	},
@@ -45,4 +45,44 @@ JSON_PERSONAL_PAYLOAD = {
 		"routing_number": "121042882",
 		"type": "savings",
 	}
+};
+
+JSON_BUSINESS_FORM_SERIALISATION = {
+	"business_name": "Levain Bakery",
+	"ein": "253912384",
+	"name": "William James",
+	"email_address": "hugecookies@gmail.com",
+	"dob_month": "01",
+	"dob_day": "02",
+	"dob_year": "1842",
+	"street_address": "167 West 74th Street",
+	"postal_code": "10023",
+	"ssn_last4": "",
+	"phone_number": "+16505551234",
+	"account_name": "Levain Bakery LLC",
+	"account_number": "28304871049",
+	"routing_number": "121042882",
+	"region": "",
+	"account_type": "savings",
+	"type": "business"
+};
+
+JSON_PERSONAL_FORM_SERIALISATION = {
+	"business_name": "",
+	"ein": "",
+	"name": "William James",
+	"email_address": "will@gmail.com",
+	"dob_month": "02",
+	"dob_day": "01",
+	"dob_year": "1842",
+	"street_address": "167 West 74th Street",
+	"postal_code": "10023",
+	"ssn_last4": "",
+	"phone_number": "+16505551234",
+	"account_name": "Levain Bakery LLC",
+	"account_number": "28304871049",
+	"routing_number": "121042882",
+	"region": "",
+	"account_type": "savings",
+	"type": "person"
 };

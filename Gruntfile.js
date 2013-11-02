@@ -51,6 +51,16 @@ module.exports = function(grunt) {
 					'test/integration/**/*.js'
 				],
 				dest: 'build/test/static/js/kyc.min.js'
+			},
+			testCss: {
+				options: {
+					separator: '\n\n'
+				},
+				src: [
+					'build/static/css/root.css',
+					'test/static/**/*.css'
+				],
+				dest: 'build/test/static/css/root.css'
 			}
 		},
 
@@ -339,16 +349,16 @@ module.exports = function(grunt) {
 	});
 
 	// Subtasks
-	grunt.registerTask('_devBuild', ['clean', 'concat', 'uglify', 'less:development', 'copy', 'tasty_swig:production']);
-	grunt.registerTask('_prodBuild', ['clean', 'concat', 'uglify', 'less:production', 'copy', 'tasty_swig:development']);
+	grunt.registerTask('_devBuild', ['clean', 'concat:kyc', 'uglify', 'less:development', 'copy:fonts', 'copy:images', 'tasty_swig:production']);
+	grunt.registerTask('_prodBuild', ['clean', 'concat:kyc', 'uglify', 'less:production', 'copy:fonts', 'copy:images', 'tasty_swig:development']);
 
 	grunt.registerTask('format', ['jsbeautifier:update']);
 	grunt.registerTask('verify', ['jshint', 'jsbeautifier:verify']);
 
 	grunt.registerTask('build', ['_prodBuild', 'hashres']);
-	grunt.registerTask('dev', ['_devBuild', 'connect', 'open', 'watch']);
+	grunt.registerTask('dev', ['_devBuild', 'connect:server', 'open', 'watch']);
 
-	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'connect:test', 'qunit']);
+	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'concat:testCss', 'connect:test', 'qunit']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);

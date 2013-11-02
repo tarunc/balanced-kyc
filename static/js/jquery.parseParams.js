@@ -15,6 +15,10 @@
 
 			while (e = re.exec(query)) {
 				var k = decode(e[1]);
+				if (k.substr(-2) === '[]' && k.length > 2) {
+					k = k.substr(0, k.length - 2);
+				}
+
 				var v = decode(e[2]);
 				if (params[k] !== undefined) {
 					if (!$.isArray(params[k])) {

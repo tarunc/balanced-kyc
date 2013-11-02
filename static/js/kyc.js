@@ -1,6 +1,8 @@
 (function(ctx) {
 	var MARKETPLACE_URI = '/v1/marketplaces/TEST-MP5JtbXVDZkSGruOJyNasPqy',
 		URL = 'https://api.balancedpayments.com/v1/api_keys';
+	var EMAIL_VALIDATOR_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b$/;
 
 	var queryParams = $.parseParams(document.location.search),
 		redirectUri = queryParams.redirect_uri;
@@ -79,10 +81,10 @@
 	};
 
 	$(function() {
-		var $form = $('form.full-page-form');
+		var $form = $('form.full-page-form').first();
 
 		var KYCLib = {
-			DEFAULT_ERROR_MESSAGE: 'This is a required field.',
+			DEFAULT_ERROR_MESSAGE: 'This is a required field',
 
 			getType: function() {
 				return $form.find('.person').hasClass('selected') ? 'person' : $form.find('.business').hasClass('selected') ? 'business' : false;
@@ -100,6 +102,8 @@
 			},
 
 			fillInFormWithQueryParams: function($form, queryParams) {
+				console.log(JSON.stringify(queryParams, null, 4));
+
 				var applicationType = queryParams['merchant[type]'];
 				if (applicationType) {
 					$('.application-type a.' + applicationType).trigger('click');
@@ -115,31 +119,30 @@
 				}
 
 				fillInWithQueryParam('#email_address', ['email_address']);
-				fillInWithQueryParam('#name', ['name', 'merchant[person[name]]', 'person[name]', 'merchant[name]']);
-				fillInWithQueryParam('#phone_number', ['name', 'merchant[name]', 'merchant[person[name]]']);
-				fillInWithQueryParam('#street_address', ['name', 'merchant[name]', 'merchant[person[name]]']);
-				fillInWithQueryParam('#postal_code', ['name', 'merchant[name]', 'merchant[person[name]]']);
-				fillInWithQueryParam('#region', ['name', 'merchant[region]', 'merchant[person[region]]']);
+				fillInWithQueryParam('#name', ['merchant[person][name]', 'name', 'person[name]', 'merchant[name]']);
+				fillInWithQueryParam('#phone_number', ['phone_number', 'merchant[phone_number]', 'merchant[person][phone_number]', 'person[phone_number]']);
+				fillInWithQueryParam('#street_address', ['street_address', 'merchant[street_address]', 'merchant[person][street_address]', 'person[street_address]']);
+				fillInWithQueryParam('#postal_code', ['postal_code', 'merchant[postal_code]', 'merchant[person][postal_code]', 'person[postal_code]']);
+				fillInWithQueryParam('#region', ['region', 'merchant[region]', 'merchant[person][region]', 'person[region]']);
 
 				// Bank Account
 				fillInWithQueryParam('#account_name', ['account_name', 'bank_account[name]', 'merchant[account_name]']);
 				fillInWithQueryParam('#account_number', ['account_number', 'bank_account[account_number]', 'merchant[account_number]']);
 				fillInWithQueryParam('#routing_number', ['routing_number', 'bank_account[routing_number]', 'merchant[routing_number]']);
-				fillInWithQueryParam('#account_type', ['account_type', 'bank_account[account_type]', 'merchant[account_type]']);
-				// fillInWithQueryParam('#ssn_last4', ['tax_id', 'merchant[person[tax_id]]', 'person[tax_id]', 'merchant[tax_id]']);
+				fillInWithQueryParam('#account_type', ['account_type', 'bank_account[type]', 'merchant[account_type]']);
 
 				if (applicationType === 'business') {
-					// fillInWithQueryParam('#ein', ['tax_id', 'merchant[tax_id]']);
+					fillInWithQueryParam('#ein', ['tax_id', 'merchant[tax_id]']);
 					fillInWithQueryParam('#business_name', ['name', 'merchant[name]']);
 				}
 
-				var dob = queryParams['dob'] || queryParams['merchant[dob]'] || queryParams['merchant[person[dob]]'];
+				var dob = queryParams['dob'] || queryParams['merchant[dob]'] || queryParams['merchant[person][dob]'] || queryParams['person[dob]'];
 				if (dob) {
 					var dobParts = dob.split('-');
 
 					$form.find('#dob_year').val(dobParts[0] || '');
-					$form.find('#dob_month').val(dobParts[2] || '');
-					$form.find('#dob_day').val(dobParts[1] || '');
+					$form.find('#dob_month').val(dobParts[1] || '');
+					$form.find('#dob_day').val(dobParts[2] || '');
 				}
 			},
 
@@ -194,6 +197,10 @@
 			},
 
 			createPayload: function(form) {
+				if (!form) {
+					return;
+				}
+
 				var bankAccount = KYCLib.getBankAccount(form);
 				var base = KYCLib.getMerchant(form);
 
@@ -271,9 +278,30 @@
 					return false;
 				}
 
+				function defaultValidation(name) {
+					return KYCLib.validateField(form[name] && form[name].length > 0, '.' + name, KYCLib.DEFAULT_ERROR_MESSAGE);
+				}
+
+				// Returns true if field is at least minLength big and is less than maxLength
+				function lengthCheck(field, minLength, maxLength) {
+					return field.length >= minLength && field.length <= maxLength;
+				}
+
+				$.each(['phone_number', 'ssn_last4', 'postal_code',
+						'street_address', 'email_address', 'name'], function (i, key) {
+					defaultValidation(key);
+				});
+
+				if (form.type === 'business') {
+					$.each(['business_name', 'ein'], function (i, key) {
+						defaultValidation(key);
+					});
+				}
+
 				KYCLib.validateField(form['terms-and-conditions'] === 'on', '.terms .control-group');
 
-				if (form['dob_month'] && form['dob_day'] && form['dob_year']) {
+				if (KYCLib.validateField(form['dob_month'] && form['dob_day'] && form['dob_year'],
+					'.personal-info .dob', 'Please enter your date of birth.')) {
 					var month = parseInt(form['dob_month'], 10);
 					var day = parseInt(form['dob_day'], 10);
 					var year = parseInt(form['dob_year'], 10);
@@ -282,14 +310,46 @@
 						(day >= 1 && day <= 31) &&
 						(form['dob_year'].length === 4 && year >= 1900 &&
 							year <= (new Date().getFullYear())),
-						'.personal-info .dob', 'Oops, your date of birth appears malformed.')) {
+						'.personal-info .dob', 'Please enter your date of birth.')) {
 						form['dob'] = form['dob_year'] + '-' + utils.leftPad(month, 2) + '-' + utils.leftPad(day, 2);
 					}
 				}
 
-				KYCLib.validateField(form['email_address'], '.personal-info .email_address', KYCLib.DEFAULT_ERROR_MESSAGE);
+				KYCLib.validateField(lengthCheck(form['ein'], 9, 11), '.ein', 'This is not a valid <a  target="_blank" href="http://www.irs.gov/Businesses/Small-Businesses-%26-Self-Employed/Apply-for-an-Employer-Identification-Number-(EIN)-Online">Employer Identification Number</a>');
+
+				KYCLib.validateField(lengthCheck(form['ssn_last4'], 4, 11), '.ssn_last4', 'This is not a valid <a target="_blank" href="http://www.ssa.gov/ssnumber/">Social Security Number</a>');
+				KYCLib.validateField(EMAIL_VALIDATOR_REGEX.test(form['email']), '.email', 'Please enter a valid email');
+
+				KYCLib.validateField(form['name'].split(' ').length > 1, '.name', 'Please enter YOUR FIRST and LAST name');
+
+				KYCLib.validateField(PHONE_VALIDATOR_REGEX.test(form['phone_number']), '.phone_number', 'Please enter a valid phone number');
 
 				return form;
+			},
+
+			serializeAndValidateForm: function ($form) {
+				var form = $form.serializeObject();
+				form.type = KYCLib.getType();
+				form = KYCLib.validateForm(form);
+
+				return form;
+			},
+
+			setQueryString: function (queryString) {
+				queryParams = $.parseParams(queryString);
+				redirectUri = queryParams.redirect_uri || redirectUri;
+
+				KYCLib.fillInFormWithQueryParams($form, queryParams);
+			},
+
+			reset: function () {
+				$form[0].reset();
+				$form.find('.control-group').removeClass('error');
+				$('.application-type a').removeClass('selected');
+			},
+
+			setMarketPlaceUri: function (uri) {
+				MARKETPLACE_URI = uri;
 			}
 		};
 
@@ -309,9 +369,7 @@
 		$form.on('submit.balanced', function(evt) {
 			evt.preventDefault();
 
-			var form = $form.serializeObject();
-			form.type = KYCLib.getType();
-			form = KYCLib.validateForm(form);
+			form = KYCLib.serializeAndValidateForm($form);
 
 			if (!form || $form.find('.control-group.error').length >= 1) {
 				return false;
@@ -344,17 +402,6 @@
 		}, 100);
 
 		ctx.balanced = ctx.balanced || {};
-		ctx.balanced.kyc = {
-			setQueryString: function (queryString) {
-				queryParams = $.parseParams(queryString);
-				redirectUri = queryParams.redirect_uri;
-
-				KYCLib.fillInFormWithQueryParams($form, queryParams);
-			},
-
-			reset: function () {
-				$form[0].reset();
-			}
-		};
+		ctx.balanced.kyc = KYCLib;
 	});
 })(this);
