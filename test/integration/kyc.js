@@ -8,6 +8,10 @@ function valueEqual(field, val) {
 	return equal($('#' + field).val(), val, field + ' fields are equal');
 }
 
+function hasClassError(selector) {
+	ok($(selector).hasClass('error'), selector + ' has class error');
+}
+
 test('form exists and fields exists', function(assert) {
 	equal($('form.full-page-form:visible').length, 1, 'Form visible');
 	equal($('form.full-page-form').find('input:visible').length, 0, 'Fields hidden');
@@ -19,7 +23,7 @@ test('balanced.kyc context exists', function(assert) {
 });
 
 test('empty form works', function(assert) {
-	var serialized = balanced.kyc.serializeAndValidateForm();
+	var serialized = balanced.kyc.serializeAndValidateForm($('form.full-page-form'));
 	ok(!serialized, 'empty serialization doesnt work');
 });
 
@@ -30,21 +34,29 @@ test('clicking on application-type', function(assert) {
 	ok($('form.full-page-form').find('input:visible').length > 10, 'Fields exist');
 	ok($('form.full-page-form').find('.business-info').is(':visible'), 'Fields are visible');
 
-	$('.application-type .personal').click();
-	equal(balanced.kyc.getType(), 'personal');
+	$('.application-type .person').click();
+	equal(balanced.kyc.getType(), 'person');
 	ok(!$('form.full-page-form').find('.business-info').is(':visible'), 'Fields are visible');
 });
 
 test('basic validation', function(assert) {
 	$('.application-type .business').click();
-	equal(balanced.kyc.getType(), 'business');
+	var serialized = balanced.kyc.serializeAndValidateForm($('form.full-page-form'));
 
-	ok($('form.full-page-form').find('input:visible').length > 10, 'Fields exist');
-	ok($('form.full-page-form').find('.business-info').is(':visible'), 'Fields are visible');
+	deepEqual(serialized, JSON_EMPTY_FORM_SERIALISATION);
 
-	$('.application-type .personal').click();
-	equal(balanced.kyc.getType(), 'personal');
-	ok(!$('form.full-page-form').find('.business-info').is(':visible'), 'Fields are visible');
+	hasClassError('.control-group.name');
+	hasClassError('.control-group.email_address');
+	hasClassError('.control-group.dob');
+	hasClassError('.control-group.street_address');
+	hasClassError('.control-group.postal_code');
+	hasClassError('.control-group.ssn_last4');
+	hasClassError('.control-group.phone_number');
+
+	hasClassError('.terms .control-group');
+
+	hasClassError('.control-group.business_name');
+	hasClassError('.control-group.ein');
 });
 
 test('business query string filling form works', function(assert) {
@@ -70,10 +82,9 @@ test('business query string filling form works', function(assert) {
 	valueEqual('routing_number', JSON_BUSINESS_PAYLOAD.bank_account.routing_number);
 	valueEqual('account_type', JSON_BUSINESS_PAYLOAD.bank_account.type);
 
-	var serialized = balanced.kyc.serializeAndValidateForm();
+	var serialized = balanced.kyc.serializeAndValidateForm($('form.full-page-form'));
 	deepEqual(serialized, JSON_BUSINESS_FORM_SERIALISATION);
 
-	ok($('.control-group.dob').hasClass('error'), 'Dob error showed up');
 	ok($('.control-group.ssn_last4').hasClass('error'), 'SSN error showed up');
 	ok($('.terms .control-group').hasClass('error'), 'Terms error showed up');
 });
@@ -101,8 +112,8 @@ test('personal query string filling form works', function(assert) {
 	valueEqual('routing_number', JSON_PERSONAL_PAYLOAD.bank_account.routing_number);
 	valueEqual('account_type', JSON_PERSONAL_PAYLOAD.bank_account.type);
 
-	var serialized = balanced.kyc.serializeAndValidateForm();
-	deepEqual(serialized, JSON_BUSINESS_FORM_SERIALISATION);
+	var serialized = balanced.kyc.serializeAndValidateForm($('form.full-page-form'));
+	deepEqual(serialized, JSON_PERSONAL_FORM_SERIALISATION);
 
 	ok($('.control-group.dob').hasClass('error'), 'Dob error showed up');
 	ok($('.control-group.ssn_last4').hasClass('error'), 'SSN error showed up');

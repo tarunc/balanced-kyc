@@ -102,8 +102,6 @@
 			},
 
 			fillInFormWithQueryParams: function($form, queryParams) {
-				console.log(JSON.stringify(queryParams, null, 4));
-
 				var applicationType = queryParams['merchant[type]'];
 				if (applicationType) {
 					$('.application-type a.' + applicationType).trigger('click');
