@@ -270,10 +270,15 @@ form {
         }
         &.error {
             background-color: @imperialRed20;
+
+            .kyc-error {
+                display: block;
+            }
         }
         .kyc-error {
             float: left;
             padding: 5px 5px 0 0;
+            display: none;
         }
         .icon.warning {
             display: block;

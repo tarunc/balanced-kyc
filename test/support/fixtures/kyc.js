@@ -27,6 +27,29 @@ JSON_BUSINESS_PAYLOAD = {
 	}
 };
 
+SUCCESS_PERSONAL_PAYLOAD = {
+	"email_address": "will.4562@gmail.com",
+	"merchant": {
+		"email_address": "will.4562@gmail.com",
+		"type": "person",
+		"name": "Mary Kane",
+		"tax_id": "3992",
+		"street_address": "21731 Lomita Ave",
+		"postal_code": "95014",
+		"dob": "1992-01-02",
+		"phone_number": "+14088216511",
+		"country_code": "USA",
+		"production": false
+	},
+	"bank_account": {
+		"name": "Levain Bakery LLC",
+		"account_number": "28304871049",
+		"routing_number": "121042882",
+		"type": "savings",
+	},
+	"production": false
+};
+
 JSON_PERSONAL_PAYLOAD = {
 	"email_address": "will@gmail.com",
 	"merchant": {

@@ -4,6 +4,10 @@ module('KYC Page', {
 	}
 });
 
+$.ajaxSetup({
+	async: false
+});
+
 function valueEqual(field, val) {
 	return equal($('#' + field).val(), val, field + ' fields are equal');
 }
@@ -118,4 +122,46 @@ test('personal query string filling form works', function(assert) {
 	ok($('.control-group.dob').hasClass('error'), 'Dob error showed up');
 	ok($('.control-group.ssn_last4').hasClass('error'), 'SSN error showed up');
 	ok($('.terms .control-group').hasClass('error'), 'Terms error showed up');
+});
+
+test('creating payload works', function(assert) {
+	var serialized = $.extend({}, JSON_PERSONAL_FORM_SERIALISATION, { ssn_last4: '3992', dob: '1842-01-02' });
+	var payload = balanced.kyc.createPayload(serialized);
+
+	equal(payload.email_address, JSON_PERSONAL_PAYLOAD.email_address);
+	equal(payload.name, JSON_PERSONAL_PAYLOAD.merchant.name);
+	deepEqual(payload.bank_account, JSON_PERSONAL_PAYLOAD.bank_account);
+	ok(payload.meta);
+
+	delete payload.merchant.email_address;
+	payload.merchant.country_code = 'USA';
+	deepEqual(payload.merchant, JSON_PERSONAL_PAYLOAD.merchant);
+});
+
+asyncTest('parsing errors work', 1, function(assert) {
+	balanced.kyc.sendPayload(JSON_PERSONAL_PAYLOAD, function (success) {
+	}, balanced.kyc.parseErrorFromAjax);
+
+	ok($('.actions').hasClass('error'), 'Error showed up');
+	start();
+});
+
+asyncTest('parsing errors work', 1, function(assert) {
+	balanced.kyc.sendPayload(JSON_PERSONAL_PAYLOAD, function (success) {
+	}, balanced.kyc.parseErrorFromAjax);
+
+	ok($('.actions').hasClass('error'), 'Error showed up');
+	start();
+});
+
+asyncTest('submitting success works', 3, function(assert) {
+	balanced.kyc.sendPayload(SUCCESS_PERSONAL_PAYLOAD, function (resp) {
+		ok(resp.merchant.email_address, 'merchant has email address');
+		ok(resp.merchant.uri, 'merchant has uri');
+	}, function (xhr) {
+		console.log('error', xhr.responseText);
+	});
+
+	ok(!$('.actions').hasClass('error'), 'Error showed up');
+	start();
 });

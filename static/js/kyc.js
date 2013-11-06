@@ -1,5 +1,5 @@
 (function(ctx) {
-	var MARKETPLACE_URI = '/v1/marketplaces/TEST-MP5JtbXVDZkSGruOJyNasPqy',
+	var MARKETPLACE_URI = window.location.pathname || window.location.path,
 		URL = 'https://api.balancedpayments.com/v1/api_keys';
 	var EMAIL_VALIDATOR_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b$/;
@@ -9,7 +9,7 @@
 
 	if (!redirectUri) {
 		// TODO: if no redirect url, what do we show?
-		console.log('No Redirect URI provided!');
+		window.console && console.log('No Redirect URI provided!');
 		throw new Error('No Redirect URI provided!');
 		return;
 	}
@@ -227,18 +227,43 @@
 			redirectMerchant: function(resp) {
 				var merchant = resp.merchant;
 				if (merchant) {
-					window.location = utils.addQueryParamsToUrl(redirectUri, [{
-						email_address: merchant.email_address
-					}, {
+
+					var url = utils.addQueryParamsToUrl(redirectUri, {
+						email_address: merchant.email_address,
 						merchant_uri: merchant.uri
-					}]);
+					});
+
+					console.log('redirect to url', url)
+					// window.location = url;
 				} else {
 					// There are errors validating the document
 				}
 			},
 
-			parseErrorFromAjax: function() {
-				console.log('error', arguments);
+			parseErrorFromAjax: function(xhr) {
+				var parsedError = JSON.parse(xhr.responseText || xhr.responseXML);
+				var errors = {};
+				if (parsedError.extras) {
+					errors = parsedError.extras;
+				} else if (parsedError.description.indexOf('KYC failed') >= 0) {
+					var kycKeys = [
+						'street_address',
+						'postal_code',
+						'dob_year',
+						'name',
+						'ssn_last4'
+					];
+
+					$.each(kycKeys, function(i, value) {
+						errors[value] = 'Please check this entry';
+					});
+				}
+
+				$.each(errors, function(key, value) {
+					KYCLib.addError(key + '.control-group', value);
+				});
+
+				$form.find('.actions').addClass('error');
 			},
 
 			addError: function(selector, errorMessage) {
@@ -294,6 +319,8 @@
 					$.each(['business_name', 'ein'], function (i, key) {
 						defaultValidation(key);
 					});
+
+					KYCLib.validateField(lengthCheck(form['ein'], 9, 11), '.ein', 'This is not a valid <a target="_blank" href="http://www.irs.gov/Businesses/Small-Businesses-%26-Self-Employed/Apply-for-an-Employer-Identification-Number-(EIN)-Online">Employer Identification Number</a>');
 				}
 
 				KYCLib.validateField(form['terms-and-conditions'] === 'on', '.terms .control-group');
@@ -312,8 +339,6 @@
 						form['dob'] = form['dob_year'] + '-' + utils.leftPad(month, 2) + '-' + utils.leftPad(day, 2);
 					}
 				}
-
-				KYCLib.validateField(lengthCheck(form['ein'], 9, 11), '.ein', 'This is not a valid <a  target="_blank" href="http://www.irs.gov/Businesses/Small-Businesses-%26-Self-Employed/Apply-for-an-Employer-Identification-Number-(EIN)-Online">Employer Identification Number</a>');
 
 				KYCLib.validateField(lengthCheck(form['ssn_last4'], 4, 11), '.ssn_last4', 'This is not a valid <a target="_blank" href="http://www.ssa.gov/ssnumber/">Social Security Number</a>');
 				KYCLib.validateField(EMAIL_VALIDATOR_REGEX.test(form['email']), '.email', 'Please enter a valid email');
@@ -342,7 +367,7 @@
 
 			reset: function () {
 				$form[0].reset();
-				$form.find('.control-group').removeClass('error');
+				$form.find('.control-group,.actions').removeClass('error');
 				$('.application-type a').removeClass('selected');
 			},
 
@@ -367,11 +392,14 @@
 		$form.on('submit.balanced', function(evt) {
 			evt.preventDefault();
 
-			form = KYCLib.serializeAndValidateForm($form);
+			var form = KYCLib.serializeAndValidateForm($form);
 
 			if (!form || $form.find('.control-group.error').length >= 1) {
+				$form.find('.actions').addClass('error');
 				return false;
 			}
+
+			$form.find('.actions.error').removeClass('error');
 
 			var payload = KYCLib.createPayload(form);
 			KYCLib.sendPayload(payload, KYCLib.redirectMerchant, KYCLib.parseErrorFromAjax);
