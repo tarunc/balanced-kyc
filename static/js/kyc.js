@@ -9,7 +9,9 @@
 
 	if (!redirectUri) {
 		// TODO: if no redirect url, what do we show?
-		window.console && console.log('No Redirect URI provided!');
+		$(function() {
+			$('form.full-page-form').prepend('<div class="control-group error"><span class="control-label">No <pre>redirect_uri</pre> query parameter provided</span></div>');
+		});
 		throw new Error('No Redirect URI provided!');
 		return;
 	}
