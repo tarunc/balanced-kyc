@@ -1,8 +1,8 @@
 (function(ctx) {
 	var MARKETPLACE_URI = window.location.pathname || window.location.path,
-		URL = 'https://api.balancedpayments.com/api_keys';
+		URL = 'https://api.balancedpayments.com/v1/api_keys';
 	var EMAIL_VALIDATOR_REGEX = /^(([^<>()\[\]\\.,;:\s@\"]+(\.[^<>()\[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?\[- (\]*(\d{3})\[- )\]*(\d{3})\[- \]*(\d{4})(?: *x(\d+))?\b$/;
+	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b$/;
 
 	var queryParams = $.parseParams(document.location.search),
 		redirectUri = queryParams.redirect_uri;

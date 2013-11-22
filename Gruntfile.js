@@ -351,7 +351,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('build', ['_prodBuild', 'hashres']);
 	grunt.registerTask('dev', ['_devBuild', 'connect:server', 'open', 'watch']);
 
-	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'concat:testCss', 'connect:test', 'qunit', 'verify']);
+	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'concat:testCss', 'connect:test', 'qunit']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);
