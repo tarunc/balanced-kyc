@@ -235,8 +235,7 @@
 						merchant_uri: merchant.uri
 					});
 
-					console.log('redirect to url', url)
-					// window.location = url;
+					window.location = url;
 				} else {
 					// There are errors validating the document
 				}
