@@ -96,13 +96,6 @@ module.exports = function(grunt) {
 			}
 		},
 
-		// rename: {
-		// 	test: {
-		// 		src: 'build/static/css/',
-		// 		dest: 'build/test/index.html'
-		// 	}
-		// },
-
 		jsbeautifier: {
 			options: {
 				config: '.jsbeautifyrc'
@@ -353,12 +346,12 @@ module.exports = function(grunt) {
 	grunt.registerTask('_prodBuild', ['clean', 'concat:kyc', 'uglify', 'less:production', 'copy:fonts', 'copy:images', 'tasty_swig:development']);
 
 	grunt.registerTask('format', ['jsbeautifier:update']);
-	grunt.registerTask('verify', ['jshint', 'jsbeautifier:verify']);
+	grunt.registerTask('verify', ['jshint:all', 'jsbeautifier:verify']);
 
 	grunt.registerTask('build', ['_prodBuild', 'hashres']);
 	grunt.registerTask('dev', ['_devBuild', 'connect:server', 'open', 'watch']);
 
-	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'concat:testCss', 'connect:test', 'qunit']);
+	grunt.registerTask('test', ['_devBuild', 'tasty_swig:test', 'neuter:testfixtures', 'concat:tests', 'concat:testCss', 'connect:test', 'qunit', 'verify']);
 
 	// The Default task
 	grunt.registerTask('default', ['dev']);

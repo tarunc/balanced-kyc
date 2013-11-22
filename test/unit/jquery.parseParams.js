@@ -3,9 +3,9 @@ module('jquery.parseParams');
 function parseParams(queryString, expected) {
 	var obj = $.parseParams(queryString);
 	deepEqual(obj, expected);
-};
+}
 
-test('Simple Test', function () {
+test('Simple Test', function() {
 	var expected = {
 		ferko: 'suska',
 		ee: 'huu'
@@ -14,7 +14,7 @@ test('Simple Test', function () {
 	parseParams('?ferko=suska&ee=huu', expected);
 });
 
-test('Simple without ? Test', function () {
+test('Simple without ? Test', function() {
 	var expected = {
 		ferko: 'suska',
 		ee: 'huu'
@@ -23,7 +23,7 @@ test('Simple without ? Test', function () {
 	parseParams('ferko=suska&ee=huu', expected);
 });
 
-test('Array with [] Test', function () {
+test('Array with [] Test', function() {
 	var expected = {
 		ferko: 'suska',
 		ee: 'huu',
@@ -33,7 +33,7 @@ test('Array with [] Test', function () {
 	parseParams('?ferko=suska&ee=huu&topics[]=seo&topics[]=php', expected);
 });
 
-test('Array without [] Test', function () {
+test('Array without [] Test', function() {
 	var expected = {
 		ferko: 'suska',
 		ee: 'huu',

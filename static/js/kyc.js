@@ -1,8 +1,8 @@
 (function(ctx) {
 	var MARKETPLACE_URI = window.location.pathname || window.location.path,
-		URL = 'https://api.balancedpayments.com/v1/api_keys';
-	var EMAIL_VALIDATOR_REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?[- (]*(\d{3})[- )]*(\d{3})[- ]*(\d{4})(?: *x(\d+))?\b$/;
+		URL = 'https://api.balancedpayments.com/api_keys';
+	var EMAIL_VALIDATOR_REGEX = /^(([^<>()\[\]\\.,;:\s@\"]+(\.[^<>()\[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var PHONE_VALIDATOR_REGEX = /^(?:\+?(\d{1,3}))?\[- (\]*(\d{3})\[- )\]*(\d{3})\[- \]*(\d{4})(?: *x(\d+))?\b$/;
 
 	var queryParams = $.parseParams(document.location.search),
 		redirectUri = queryParams.redirect_uri;
@@ -13,7 +13,6 @@
 			$('form.full-page-form').prepend('<div class="control-group error"><span class="control-label">No <pre>redirect_uri</pre> query parameter provided</span></div>');
 		});
 		throw new Error('No Redirect URI provided!');
-		return;
 	}
 
 	var utils = {
@@ -23,10 +22,10 @@
 			var paramStr = $.param(params);
 
 			return (url.indexOf('?') !== -1 ?
-						url.split('?')[0] + '?' + paramStr + '&' + url.split('?')[1] :
-						(url.indexOf('#') !== -1 ?
-							url.split('#')[0] + '?' + paramStr + '#' + url.split('#')[1] :
-							url + '?' + paramStr));
+				url.split('?')[0] + '?' + paramStr + '&' + url.split('?')[1] :
+				(url.indexOf('#') !== -1 ?
+					url.split('#')[0] + '?' + paramStr + '#' + url.split('#')[1] :
+					url + '?' + paramStr));
 		},
 
 		//  Return a copy of the object only containing the whitelisted properties.
@@ -252,7 +251,8 @@
 						'postal_code',
 						'dob_year',
 						'name',
-						'ssn_last4'
+						'ssn_last4',
+						'email_address'
 					];
 
 					$.each(kycKeys, function(i, value) {
@@ -307,17 +307,19 @@
 				}
 
 				// Returns true if field is at least minLength big and is less than maxLength
+
 				function lengthCheck(field, minLength, maxLength) {
 					return field.length >= minLength && field.length <= maxLength;
 				}
 
 				$.each(['phone_number', 'ssn_last4', 'postal_code',
-						'street_address', 'email_address', 'name'], function (i, key) {
+					'street_address', 'email_address', 'name'
+				], function(i, key) {
 					defaultValidation(key);
 				});
 
 				if (form.type === 'business') {
-					$.each(['business_name', 'ein'], function (i, key) {
+					$.each(['business_name', 'ein'], function(i, key) {
 						defaultValidation(key);
 					});
 
@@ -342,7 +344,7 @@
 				}
 
 				KYCLib.validateField(lengthCheck(form['ssn_last4'], 4, 11), '.ssn_last4', 'This is not a valid <a target="_blank" href="http://www.ssa.gov/ssnumber/">Social Security Number</a>');
-				KYCLib.validateField(EMAIL_VALIDATOR_REGEX.test(form['email']), '.email', 'Please enter a valid email');
+				KYCLib.validateField(EMAIL_VALIDATOR_REGEX.test(form['email_address']), '.email_address', 'Please enter a valid email');
 
 				KYCLib.validateField(form['name'].split(' ').length > 1, '.name', 'Please enter YOUR FIRST and LAST name');
 
@@ -351,7 +353,7 @@
 				return form;
 			},
 
-			serializeAndValidateForm: function ($form) {
+			serializeAndValidateForm: function($form) {
 				var form = $form.serializeObject();
 				form.type = KYCLib.getType();
 				form = KYCLib.validateForm(form);
@@ -359,20 +361,20 @@
 				return form;
 			},
 
-			setQueryString: function (queryString) {
+			setQueryString: function(queryString) {
 				queryParams = $.parseParams(queryString);
 				redirectUri = queryParams.redirect_uri || redirectUri;
 
 				KYCLib.fillInFormWithQueryParams($form, queryParams);
 			},
 
-			reset: function () {
+			reset: function() {
 				$form[0].reset();
 				$form.find('.control-group,.actions').removeClass('error');
 				$('.application-type a').removeClass('selected');
 			},
 
-			setMarketPlaceUri: function (uri) {
+			setMarketPlaceUri: function(uri) {
 				MARKETPLACE_URI = uri;
 			}
 		};
