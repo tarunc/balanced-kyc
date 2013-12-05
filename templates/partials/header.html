@@ -17,6 +17,8 @@
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+  <script src="//cdn.ravenjs.com/1.1.2/jquery,native/raven.min.js"></script>
+  <script type="text/javascript">Raven.config('https://public@app.getsentry.com/1', {whitelistUrls:[/balancedpayments\.com/]}).install();</script>
   {%- for script in scripts -%}
     <script src="{{script}}"></script>
   {%- endfor -%}
