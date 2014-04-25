@@ -211,6 +211,10 @@
 					meta: utils.getCapabilities()
 				};
 
+				if (MARKETPLACE_URI.indexOf('TEST') >= 0) {
+					jsonPayload.production = false;
+				}
+
 				return jsonPayload;
 			},
 
@@ -218,14 +222,11 @@
 				return $.ajax({
 					url: URL,
 					type: 'POST',
-					data: payload,
+					data: JSON.stringify(payload),
 					dataType: 'json',
 					success: success,
 					error: failure,
-					contentType: 'application/json; charset=UTF-8',
-					accepts: {
-						json: 'application/vnd.balancedpayments+json; version=1.1'
-					}
+					contentType: 'application/json; charset=UTF-8'
 				});
 			},
 
