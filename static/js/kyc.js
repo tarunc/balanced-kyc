@@ -221,7 +221,11 @@
 					data: payload,
 					dataType: 'json',
 					success: success,
-					error: failure
+					error: failure,
+					contentType: 'application/json; charset=UTF-8',
+					accepts: {
+						json: 'application/vnd.balancedpayments+json; version=1.1'
+					}
 				});
 			},
 

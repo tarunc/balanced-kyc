@@ -324,6 +324,85 @@ module.exports = function(grunt) {
 				dest: 'build/test/',
 				src: ['templates/**/*.html', 'templates/**.html', '!templates/partials/**/*.html'],
 			}
+		},
+
+		s3: {
+			options: {
+				access: 'public-read',
+				region: 'us-west-1',
+				gzip: true,
+				gzipExclude: ['.jpg', '.jpeg', '.png', '.ico', '.gif']
+			},
+			previewCached: {
+				options: {
+					bucket: 'balanced-kyc-preview',
+				},
+				headers: {
+					'Cache-Control': 'public, max-age=86400'
+				},
+				upload: [{
+					src: 'build/images/**/*',
+					dest: 'images/',
+					rel: 'build/images'
+				}, {
+					src: 'build/static/**/*',
+					dest: 'static/',
+					rel: 'build/static'
+				}, {
+					src: 'build/*.{xml,txt,ico}',
+					dest: '',
+					rel: 'build'
+				}]
+			},
+			previewUncached: {
+				options: {
+					bucket: 'balanced-kyc-preview',
+				},
+				headers: {
+					'Cache-Control': 'max-age=60',
+					'Content-Type': 'text/html'
+				},
+				upload: [{
+					src: 'build/*',
+					dest: '',
+					rel: 'build'
+				}]
+			},
+			productionCached: {
+				options: {
+					bucket: 'balanced-kyc',
+				},
+				headers: {
+					'Cache-Control': 'public, max-age=86400'
+				},
+				upload: [{
+					src: 'build/images/**/*',
+					dest: 'images/',
+					rel: 'build/images'
+				}, {
+					src: 'build/static/**/*',
+					dest: 'static/',
+					rel: 'build/static'
+				}, {
+					src: 'build/*.{xml,txt,ico}',
+					dest: '',
+					rel: 'build'
+				}]
+			},
+			productionUncached: {
+				options: {
+					bucket: 'balanced-kyc',
+				},
+				headers: {
+					'Cache-Control': 'max-age=60',
+					'Content-Type': 'text/html'
+				},
+				upload: [{
+					src: 'build/*',
+					dest: '',
+					rel: 'build'
+				}]
+			}
 		}
 	});
 
@@ -342,11 +421,16 @@ module.exports = function(grunt) {
 	});
 
 	// Subtasks
-	grunt.registerTask('_devBuild', ['clean', 'concat:kyc', 'uglify', 'less:development', 'copy:fonts', 'copy:images', 'tasty_swig:production']);
-	grunt.registerTask('_prodBuild', ['clean', 'concat:kyc', 'uglify', 'less:production', 'copy:fonts', 'copy:images', 'tasty_swig:development']);
+	grunt.registerTask('_devBuild', ['clean', 'concat:kyc', 'uglify', 'less:development', 'copy:fonts', 'copy:images', 'tasty_swig:development']);
+	grunt.registerTask('_prodBuild', ['clean', 'concat:kyc', 'uglify', 'less:production', 'copy:fonts', 'copy:images', 'tasty_swig:production', 'img']);
 
 	grunt.registerTask('format', ['jsbeautifier:update']);
 	grunt.registerTask('verify', ['jshint:all', 'jsbeautifier:verify']);
+
+	// Uploads to s3. Requires environment variables to be set if the bucket
+	// you're uploading to doesn't have public write access.
+	grunt.registerTask('deploy', ['build', 's3:productionCached', 's3:productionUncached']);
+	grunt.registerTask('deployPreview', ['build', 's3:previewCached', 's3:previewUncached']);
 
 	grunt.registerTask('build', ['_prodBuild', 'hashres']);
 	grunt.registerTask('dev', ['_devBuild', 'connect:server', 'open', 'watch']);

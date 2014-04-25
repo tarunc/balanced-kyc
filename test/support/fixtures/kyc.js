@@ -24,7 +24,8 @@ JSON_BUSINESS_PAYLOAD = {
 		"account_number": "28304871049",
 		"routing_number": "121042882",
 		"type": "savings",
-	}
+	},
+	"production": false
 };
 
 SUCCESS_PERSONAL_PAYLOAD = {
@@ -67,7 +68,8 @@ JSON_PERSONAL_PAYLOAD = {
 		"account_number": "28304871049",
 		"routing_number": "121042882",
 		"type": "savings",
-	}
+	},
+	"production": false
 };
 
 JSON_BUSINESS_FORM_SERIALISATION = {
