@@ -369,6 +369,9 @@
 			setQueryString: function(queryString) {
 				queryParams = $.parseParams(queryString);
 				redirectUri = queryParams.redirect_uri || redirectUri;
+				if (queryParams.production === false) {
+					KYCLib.setMarketPlaceUri('TEST-MP123');
+				}
 
 				KYCLib.fillInFormWithQueryParams($form, queryParams);
 			},
